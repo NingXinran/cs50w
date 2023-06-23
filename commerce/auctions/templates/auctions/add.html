@@ -1,0 +1,59 @@
+{% extends "auctions/layout.html" %}
+
+{% block body %}
+
+<h2 class="mb-3 ml-4">Add New Listing</h2>
+                
+<form class="m-4" action="{% url 'add' %}" method="POST">
+    {% csrf_token %}
+    <div class="form-group">
+        <label for="add_listing_title">Title</label>
+        <input type="text" 
+            class="form-control" 
+            id="add_listing_title" 
+            name="add_listing_title"
+            placeholder="Listing Title" 
+            required>
+    </div>
+    <div class="form-group">
+        <label for="add_listing_description">Description</label>
+        <input type="text" 
+            class="form-control" 
+            id="add_listing_description"
+            name="add_listing_description"
+            placeholder="Describe your listing" 
+            required>
+    </div>
+    <div class="form-group">
+        <label for="add_listing_starting_bid">Starting Bid</label>
+        <div class="input-group mb-3">
+            <div class="input-group-prepend">
+                <span class="input-group-text">$</span>
+            </div>
+            <input type="number" 
+                class="form-control" 
+                id="add_listing_starting_bid" 
+                name="add_listing_starting_bid" 
+                placeholder="Place your starting bid" 
+                required>
+        </div>
+    </div>
+    <hr/>
+    <div class="form-group">
+        <label for="add_listing_image_url">Image URL</label>
+        <input type="text" 
+            class="form-control" 
+            id="add_listing_image_url"  
+            name="add_listing_image_url"
+            placeholder="Add an image URL">
+        <small id="image_url_optional_text" class="form-text text-muted">Add an optional image for your listing!</small>
+    </div>
+    <div class="form-group">
+        <label for="add_listing_category">Category</label>
+        <input type="text" class="form-control" name="add_listing_category" placeholder="Add a category">
+        <small class="form-text text-muted" id="category_text">Add an optional category for your listing</small>
+    </div>
+    <button type="submit" class="btn btn-primary">Add</button>
+</form>
+        
+{% endblock %}
