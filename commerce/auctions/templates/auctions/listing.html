@@ -1,0 +1,130 @@
+{% extends "auctions/layout.html" %}
+
+{% block body %}
+    <div class="jumbotron">
+        <h1 class="display-4"> Listing: {{ ls.title }}
+            {% if ls.is_open %}
+            <span class="badge badge-success" style="font-size: medium;">Open</span>
+            {% else %}
+            <span class="badge badge-secondary" style="font-size: medium;">Closed</span>
+            {% endif %}
+        </h1>
+        <p class="lead">{{ ls.description }}</p>
+        {% if user.is_authenticated %}
+            {% if ls not in watchlist_listings %}
+                <form action="{% url 'watchlist_id' ls.id %}" method="POST" style="display: inline;">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-primary mt-4" >Add to watchlist</button>
+                </form>
+            {% else %}
+                <form action="{% url 'watchlist_id' ls.id %}" method="POST" style="display: inline;">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-secondary mt-4" >Remove from watchlist</button>
+            </form>
+            {% endif %}
+        {% endif %}
+        {% if user == ls.user and ls.is_open %}
+            <form action="{% url 'close' ls.id %}" method="POST" style="display: inline;">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger mt-4" >Close this listing</button>
+            </form>
+        {% endif %}
+    </div>
+    <div class="row">
+        <div class="col-6">
+            <img align="right" class="img-thumbnail ml-4" src="{{ ls.image }}" alt="image of listing" style="max-height: 500px;">
+        </div>
+        <div class="col-6">
+            {% if ls.is_open %}
+                <h1>Current bid:</h1>
+                <h2>${{ ls.bid.amount }} by {{ ls.bid.user.username }}</h2>
+            {% endif %}
+            {% if user.is_authenticated and ls.is_open %}
+            <hr class="my-4">
+            <div class="mr-4">
+                {% if success_msg %}
+                <div class="alert alert-success">
+                    {{ success_msg }}
+                </div>
+                {% endif %}
+                {% if error_msg %}
+                    <div class="alert alert-warning">
+                        {{ error_msg }}
+                    </div>
+                {% endif %}
+                <form action="{% url 'listing' ls.id %}" method="POST">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <div class="input-group mb-3">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text">$</span>
+                            </div>
+                            <input type="number" 
+                                step=".01"
+                                class="form-control" 
+                                id="new_bid_amount" 
+                                name="new_bid_amount" 
+                                placeholder="Make your bid here" 
+                                required>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Submit</button>
+                </form>
+            </div>
+            {% elif ls.is_open %}
+            <div class="alert alert-warning m-4">Please log in to bid on this listing.</div>
+            {% elif user == ls.user %}
+            <div class="alert alert-success mr-4">Congratulations! You have won this listing with a bid of ${{ ls.bid.amount }}!</div>
+            {% else %}
+            <div class="alert alert-success mr-4">Congratulations to {{ ls.bid.user.username }} for winning this listing with a bid of ${{ ls.bid.amount }}!</div>
+            {% endif %}
+        </div>
+    </div>
+    <hr class="m-4">
+    <h2 class="ml-4">Comments</h2>
+    {% if user.is_authenticated %}
+    <div class="m-4 p-4" style="border:lightgrey; border-width:1px; border-style:solid; border-radius: 4px;">
+        <h4 class="mb-3">Add a Comment</h4>
+        <form action="{% url 'comment' ls.id %}" method="POST">
+            {% csrf_token %}
+            <div class="form-group">
+                <div class="form-group">
+                    <input type="text" 
+                        class="form-control" 
+                        id="comment_title"
+                        name="comment_title"
+                        placeholder="Comment Title" 
+                        required>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="form-group">
+                    <input type="text" 
+                        class="form-control" 
+                        id="comment_body"
+                        name="comment_body"
+                        placeholder="Type your comment here!" 
+                        required>
+                </div>
+            </div>
+            <button type="submit" class="btn btn-primary">Submit</button>
+        </form>
+    </div>
+    {% endif %}
+    <div class="row m-4">
+        <div class="card-deck">
+            {% for comment in comments %}
+            <div class="card" style="height: 24rem; width: 20rem;">
+                <div class="card-body">
+                    <h5 class="card-title">{{comment.title}}</h5>
+                    <p class="card-text">{{comment.text}}</p>
+                </div>
+                <div class="card-footer">
+                    <small class="text-muted">Added by {{comment.user}} on {{comment.time}}</small>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+{% endblock %}
