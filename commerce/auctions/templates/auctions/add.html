@@ -51,7 +51,12 @@
     </div>
     <div class="form-group">
         <label for="add_listing_category">Category</label>
-        <input type="text" class="form-control" name="add_listing_category" placeholder="Add a category">
+        <select name="add_listing_category" id="add_listing_category" class="custom-select">
+            <option value=null selected disabled>SELECT CATEGORY</option>
+            {% for category in categories %}
+                <option value="{{category.name}}">{{category.name}}</option>
+            {% endfor %}
+        </select>
         <small class="form-text text-muted" id="category_text">Add an optional category for your listing</small>
     </div>
     <button type="submit" class="btn btn-primary">Add</button>

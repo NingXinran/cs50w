@@ -3,6 +3,9 @@
 {% block body %}
     <div class="jumbotron">
         <h1 class="display-4"> Listing: {{ ls.title }}
+            {% if ls.category is not None %}
+            <span class="badge badge-secondary" style="font-size: medium;">{{ls.category.name}}</span>
+            {% endif %}
             {% if ls.is_open %}
             <span class="badge badge-success" style="font-size: medium;">Open</span>
             {% else %}

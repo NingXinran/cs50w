@@ -1,0 +1,14 @@
+{% extends "auctions/layout.html" %}
+
+{% block body %}
+<div class="m-4">
+    {% for category in categories %}
+    <div class="row ml-4 mb-4">
+        <h4> <a href="{% url 'category' category.name %}">{{category.name}}</a>
+            <span class="badge badge-secondary mx-2" style="font-size: small;">{{category.count}}</span>
+        </h4>
+    </div>
+{% endfor %}
+</div>
+
+{% endblock %}

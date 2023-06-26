@@ -5,7 +5,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render, redirect
 from django.urls import reverse
 
-from .models import User, Listing, Comment, Bid
+from .models import User, Listing, Comment, Bid, Category
 
 
 def index(request):
@@ -77,13 +77,20 @@ def add_view(request):
             description = request.POST["add_listing_description"],
             bid = initial_bid,
             image = request.POST["add_listing_image_url"],
-            category = request.POST["add_listing_category"],
+            category = Category.objects.get(name=request.POST["add_listing_category"]),
             user = request.user,
             is_open = True
         )
         listing.save()
+        if request.POST["add_listing_category"] is not None:
+            category = Category.objects.get(name=request.POST["add_listing_category"])
+            count = Listing.objects.filter(category=category).count()
+            category.count = count
+            category.save()
         return HttpResponseRedirect(reverse("index"))
-    return render(request, "auctions/add.html")
+    return render(request, "auctions/add.html", {
+        "categories": Category.objects.all()
+    })
 
 def listing(request, id):
     ls = Listing.objects.get(id=id)
@@ -160,3 +167,17 @@ def add_comment(request, id):
         )
         comment.save()
         return HttpResponseRedirect(reverse("listing", args=(ls.id,)))
+    
+def categories(request):
+    categories = Category.objects.all()
+    count = len(categories)
+    return render(request, "auctions/categories.html", {
+        "categories": categories
+    })
+
+def category(request, name):
+    category = Category.objects.get(name=name)
+    listings = Listing.objects.filter(category=category)
+    return render(request, "auctions/category.html", {
+        "listings": listings
+    })
