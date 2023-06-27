@@ -76,17 +76,12 @@ def add_view(request):
             title = request.POST["add_listing_title"],
             description = request.POST["add_listing_description"],
             bid = initial_bid,
-            image = request.POST["add_listing_image_url"],
-            category = Category.objects.get(name=request.POST["add_listing_category"]),
+            image = request.POST["add_listing_image_url"] if request.POST["add_listing_image_url"] else None,
+            category = Category.objects.get(name=request.POST["add_listing_category"]) if "add_listing_category" in request.POST else None,
             user = request.user,
             is_open = True
         )
         listing.save()
-        if request.POST["add_listing_category"] is not None:
-            category = Category.objects.get(name=request.POST["add_listing_category"])
-            count = Listing.objects.filter(category=category).count()
-            category.count = count
-            category.save()
         return HttpResponseRedirect(reverse("index"))
     return render(request, "auctions/add.html", {
         "categories": Category.objects.all()
@@ -111,7 +106,7 @@ def listing(request, id):
             return render(request, "auctions/listing.html", {
                 "ls": ls,
                 "user": request.user,
-                "watchlist_listings": request.user.watchlist_listings.all(),
+                "watchlist_listings": request.user.watchlist_listings.all() if request.user.is_authenticated else None,
                 "comments": comments,
                 "success_msg": "Bid successfully placed!"
             })
@@ -119,7 +114,7 @@ def listing(request, id):
             return render(request, "auctions/listing.html", {
                 "ls": ls,
                 "user": request.user,
-                "watchlist_listings": request.user.watchlist_listings.all(),
+                "watchlist_listings": request.user.watchlist_listings.all() if request.user.is_authenticated else None,
                 "comments": comments,
                 "error_msg": "Please ensure that your bidding value is strictly greater than the current value!"
             })
@@ -128,7 +123,7 @@ def listing(request, id):
     return render(request, "auctions/listing.html", {
         "ls": ls,
         "user": request.user,
-        "watchlist_listings": request.user.watchlist_listings.all(),
+        "watchlist_listings": request.user.watchlist_listings.all() if request.user.is_authenticated else None,
         "comments": comments
     })
 
@@ -170,7 +165,10 @@ def add_comment(request, id):
     
 def categories(request):
     categories = Category.objects.all()
-    count = len(categories)
+    for category in categories:
+        count = Listing.objects.filter(category=category).filter(is_open=True).count()
+        category.count = count
+        category.save()
     return render(request, "auctions/categories.html", {
         "categories": categories
     })

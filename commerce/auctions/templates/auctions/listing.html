@@ -74,9 +74,9 @@
                     <button type="submit" class="btn btn-primary">Submit</button>
                 </form>
             </div>
-            {% elif ls.is_open %}
+            {% elif ls.is_open and not user.is_authenticated %}
             <div class="alert alert-warning m-4">Please log in to bid on this listing.</div>
-            {% elif user == ls.user %}
+            {% elif not ls.is_open and user == ls.bid.user %}
             <div class="alert alert-success mr-4">Congratulations! You have won this listing with a bid of ${{ ls.bid.amount }}!</div>
             {% else %}
             <div class="alert alert-success mr-4">Congratulations to {{ ls.bid.user.username }} for winning this listing with a bid of ${{ ls.bid.amount }}!</div>
@@ -102,12 +102,13 @@
             </div>
             <div class="form-group">
                 <div class="form-group">
-                    <input type="text" 
+                    <textarea type="text" 
+                        rows="4"
                         class="form-control" 
                         id="comment_body"
                         name="comment_body"
                         placeholder="Type your comment here!" 
-                        required>
+                        required></textarea>
                 </div>
             </div>
             <button type="submit" class="btn btn-primary">Submit</button>

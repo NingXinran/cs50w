@@ -6,7 +6,11 @@
     {% if listing.is_open %}
         <div class="row align-items-center border mx-5 my-3">
             <div class="col-4 text-center">
+                {% if listing.image %}
                 <img class="img-thumbnail" style="height: 300px;" src="{{ listing.image }}" alt="Card image cap">
+                {% else %}
+                <p style="color: grey;">No image</p>
+                {% endif %}
             </div>
             <div class="col-8 my-4">
                 <h5 class="card-title">{{ listing.title }}</h5>

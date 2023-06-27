@@ -23,7 +23,7 @@ class Listing(models.Model):
     title = models.CharField(max_length=64)
     description = models.TextField()
     bid = models.OneToOneField(Bid, on_delete=models.CASCADE)
-    image = models.URLField()
+    image = models.URLField(null=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
     is_open = models.BooleanField()
     watchlist = models.ManyToManyField(User, related_name="watchlist_listings", null=True)
