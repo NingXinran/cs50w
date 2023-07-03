@@ -75,7 +75,7 @@ function load_mailbox(mailbox) {
 }
 
 function send_email(event) {
-  event.preventDefault();
+  event.preventDefault();  // prevent reload on submission
 
   recipients = document.querySelector('#compose-recipients').value;
   subject = document.querySelector('#compose-subject').value;
@@ -95,7 +95,7 @@ function send_email(event) {
     console.log(result);
   });
 
-  load_mailbox('sent');
+  load_mailbox('sent');  // Send user to 'Sent' mailbox
 }
 
 function show_email(mail, mailbox) {
@@ -120,6 +120,10 @@ function show_email(mail, mailbox) {
   sender.innerText = `From: ${mail.sender}`;
   sender.style.fontWeight = "700";
   div.append(sender);
+  // Create recipients
+  const recipients = document.createElement('h5');
+  recipients.innerText = `To: ${mail.recipients.join(', ')}`;
+  div.append(recipients);
   // Create subject
   const subject = document.createElement('h5');
   subject.className = "";
@@ -188,8 +192,8 @@ function unarchive_email(mail_id) {
 }
 
 function reply_email(mail) {
-  console.log('replying email');
   compose_email();
+  // Pre-fill form
   document.querySelector('#compose-recipients').value = mail.sender;
   document.querySelector('#compose-subject').value = `Re: ${mail.subject}`;
   document.querySelector('#compose-body').value = `On ${mail.timestamp} ${mail.sender} wrote:\n${mail.body}`;
