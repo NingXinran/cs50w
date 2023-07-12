@@ -76,7 +76,31 @@ def register(request):
         return render(request, "network/register.html")
     
 def user_view(request, username):
+    requestUser = request.user
     user = User.objects.get(username=username)
+    followersCount = user.followers.all().count
+    followingCount = user.following.all().count
+    posts = Post.objects.filter(user = user).order_by('-time')
+    isFollowing = user in requestUser.following.all()
     return render(request, "network/user.html", {
-        "user": user
+        "requestUser": requestUser,
+        "user": user,
+        "followersCount": followersCount,
+        "followingCount": followingCount,
+        "posts": posts,
+        "isFollowing": isFollowing
     })
+
+def follow(request, username):
+    requestUser = request.user
+    userObject = User.objects.get(username=username)
+    isFollowing = userObject in requestUser.following.all()
+    if not isFollowing:
+        print(f"you have requested to follow {username}.")
+        requestUser.following.add(userObject)
+        requestUser.save()
+    else:
+        print(f"you have requested to unfollow {username}.")
+        requestUser.following.remove(userObject)
+        requestUser.save()
+    return HttpResponseRedirect(reverse("user", args=(username,)))
