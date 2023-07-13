@@ -1,22 +1,12 @@
 {% extends "network/layout.html" %}
 
 {% block body %}
-    <form action="{% url 'index' %}" class="m-4 p-4 border" method="POST">
-        {% csrf_token %}
-        <h2>New Post</h2>
-        <div class="form-group">
-            <textarea name="create_body" 
-            class="form-control"
-            id="create_body" 
-            cols="30" rows="5"
-            placeholder="Add your comment here" 
-            required></textarea>    
-        </div>
-        <button class="btn btn-primary" type="submit">Post</button>
-    </form>
     <hr class="mx-4">
-    <h1 class="m-4">All Posts</h1> 
-    {% for post in posts %}
+    <h1 class="m-4">Following Posts</h1> 
+    {% if not followingPosts %}
+        <div class="m-4">You have no posts in Following. Follow more people first!</div>
+    {% endif %}
+    {% for post in followingPosts %}
     <div class="m-4 p-4 border">
         <h3 id="post_username" style="cursor:pointer;">
             <a href="{% url 'user' post.user.username %}" style="text-decoration: none;">{{ post.user.username }}</a>
@@ -28,7 +18,6 @@
         <small class="text-muted">{{ post.time }}</small>
     </div>
     {% endfor %}
-
     {% if hasNext %}
     <button onclick="goToNextPage()" class="m-4 px-4 btn btn-primary" style="float:right;">Next</button>
     {% endif %}
@@ -41,11 +30,11 @@
 {% block script %}
     <script type="text/javascript">
         function goToNextPage() {
-            document.location.href = "{% url 'indexPaged' nextPage %}"
+            document.location.href = "{% url 'following' nextPage %}"
         }
 
         function goToPreviousPage() {
-            document.location.href = "{% url 'indexPaged' prevPage %}"
+            document.location.href = "{% url 'following' prevPage %}"
         }
     </script>
 {% endblock %}

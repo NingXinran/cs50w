@@ -1,4 +1,5 @@
 from django.contrib.auth import authenticate, login, logout
+from django.core.paginator import Paginator
 from django.db import IntegrityError
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
@@ -19,8 +20,23 @@ def index(request):
         )
         new_post.save()
         return HttpResponseRedirect(reverse("index"))
+    else:
+        return indexPaged(request, 1)
+
+def indexPaged(request, page):
+    allPosts = Post.objects.all().order_by('-time')
+    paginator = Paginator(allPosts, 10)
+    numPages = paginator.num_pages
+    posts = paginator.page(page).object_list
+    hasNext = page < numPages
+    hasPrev = page != 1
+
     return render(request, "network/index.html", {
-        "posts": Post.objects.all().order_by('-time')
+        "posts": posts,
+        "hasNext": hasNext,
+        "hasPrev": hasPrev,
+        "nextPage": page + 1,
+        "prevPage": page - 1
     })
 
 
@@ -104,3 +120,36 @@ def follow(request, username):
         requestUser.following.remove(userObject)
         requestUser.save()
     return HttpResponseRedirect(reverse("user", args=(username,)))
+
+def following_view(request, page):
+    allFollowing = request.user.following.all()
+    allPosts = Post.objects.all()
+    followingPosts = []
+    for following in allFollowing:
+        posts = allPosts.filter(user = following)
+        for post in posts:
+            followingPosts.append(post)
+    followingPosts.sort(key=lambda x: x.time, reverse=True)
+
+    if not followingPosts:
+        return render(request, "network/following.html", {
+            "followingPosts": followingPosts,
+            "hasNext": False,
+            "hasPrev": False,
+            "nextPage": 0,
+            "prevPage": 0
+        })
+
+    paginator = Paginator(followingPosts, 10)
+    numPages = paginator.num_pages
+    posts = paginator.page(page).object_list
+    hasNext = page < numPages
+    hasPrev = page != 1
+
+    return render(request, "network/following.html", {
+        "followingPosts": posts,
+        "hasNext": hasNext,
+        "hasPrev": hasPrev,
+        "nextPage": page + 1,
+        "prevPage": page - 1
+    })
