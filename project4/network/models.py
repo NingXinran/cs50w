@@ -12,16 +12,9 @@ class Post(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     body = models.TextField()
     time = models.DateTimeField()
-    likes = models.IntegerField()
+    likes = models.ManyToManyField(User,
+                                   blank=True,
+                                   related_name='liked')
     
     def __str__(self):
         return f"Post from {self.user.username}: {self.body[:20]}"
-
-class Like(models.Model):
-    post = models.ForeignKey(Post, on_delete=models.CASCADE)
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-
-class Comment(models.Model):
-    post = models.ForeignKey(Post, on_delete=models.CASCADE)
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    body = models.TextField()

@@ -9,7 +9,7 @@ from django.views.decorators.csrf import csrf_exempt
 
 from datetime import datetime
 
-from .models import User, Post, Like, Comment
+from .models import User, Post
 
 
 def index(request):
@@ -17,8 +17,7 @@ def index(request):
         new_post = Post(
             user = request.user,
             body = request.POST["create_body"],
-            time = datetime.now(),
-            likes = 0  # Only store count, starts with 0
+            time = datetime.now()
         )
         new_post.save()
         return HttpResponseRedirect(reverse("index"))
@@ -158,14 +157,28 @@ def following_view(request, page):
 
 @csrf_exempt
 def editPost(request, id):
+    print("editPost")
     try:
-        post = Post.objects.get(user=request.user, pk=id)
+        post = Post.objects.get(pk=id)
     except Post.DoesNotExist:
         return JsonResponse({"error": "Post not found.", "status": 404})
-    
+
     if request.method == "PUT":
         data = json.loads(request.body)
-        post.body = data["body"]
-        post.save()
-        print(post)
-        return HttpResponse(status=204)
+        if data["attribute"] == "body" and data["body"] is not None:  # Edit function
+            post.body = data["body"]
+            post.save()
+            return HttpResponse(status=204)
+        elif data["attribute"] == "like":  # Like function
+            # Check if user has already liked the post
+            hasLiked = request.user in post.likes.all()
+            if hasLiked:
+                post.likes.remove(request.user)
+                post.save()
+            else:
+                post.likes.add(request.user)
+                post.save()
+            return JsonResponse({
+                "likes": str(post.likes.count())
+            }, status=200)
+

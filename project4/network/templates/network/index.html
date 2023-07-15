@@ -1,19 +1,21 @@
 {% extends "network/layout.html" %}
 
 {% block body %}
-    <form action="{% url 'index' %}" class="m-4 p-4 border" method="POST">
-        {% csrf_token %}
-        <h2>New Post</h2>
-        <div class="form-group">
-            <textarea name="create_body" 
-            class="form-control"
-            id="create_body" 
-            cols="30" rows="5"
-            placeholder="Add your comment here" 
-            required></textarea>    
-        </div>
-        <button class="btn btn-primary" type="submit">Post</button>
-    </form>
+    {% if user.is_authenticated %}
+        <form action="{% url 'index' %}" class="m-4 p-4 border" method="POST">
+            {% csrf_token %}
+            <h2>New Post</h2>
+            <div class="form-group">
+                <textarea name="create_body" 
+                class="form-control"
+                id="create_body" 
+                cols="30" rows="5"
+                placeholder="Write your post here" 
+                required></textarea>    
+            </div>
+            <button class="btn btn-primary" type="submit">Post</button>
+        </form>
+    {% endif %}
     <hr class="mx-4">
     <h1 class="m-4">All Posts</h1> 
     {% for post in posts %}
@@ -36,7 +38,8 @@
             <button class="btn btn-outline-success btn-sm" onclick="submitEditPost({{post.id}})">Save</button>
         </form>
         <div>
-            {{ post.likes }} <i class="fa-solid fa-heart" style="color: #ff708d;"></i>
+            <i class="fa-solid fa-heart" style="color: #ff708d; cursor:pointer" onclick="toggleLike({{post.id}})"></i>
+            <p id="likes-count-{{post.id}}" style="display: inline;">{{ post.likes.count }}</p>
         </div>
         <small class="text-muted">{{ post.time }}</small>
     </div>
@@ -64,6 +67,7 @@
             fetch(`posts/${postId}`, {
                 method: 'PUT',
                 body: JSON.stringify({
+                    attribute: "body",
                     body: newBody
                 })
             })
@@ -75,6 +79,19 @@
             document.querySelector(`#edit-post-body-${postId}`).hidden = true
             document.querySelector(`#post-body-${postId}`).hidden = false
             document.querySelector(`#edit-button-${postId}`).hidden = false 
+        }
+
+        function toggleLike(postId) {
+            fetch(`posts/${postId}`, {
+                method: 'PUT',
+                body: JSON.stringify({
+                    attribute: 'like'
+                })
+            })
+            .then(result => result.json())
+            .then(data => {
+                document.querySelector(`#likes-count-${postId}`).innerText = data.likes
+            })
         }
 
         function goToNextPage() {

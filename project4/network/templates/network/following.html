@@ -13,7 +13,7 @@
         </h3>
         <p class="my-2">{{ post.body }}</p>
         <div>
-            {{ post.likes }} <i class="fa-solid fa-heart" style="color: #ff708d;"></i>
+            <i class="fa-solid fa-heart" style="color: #ff708d; cursor: pointer;"></i> {{ post.likes.count }}
         </div>
         <small class="text-muted">{{ post.time }}</small>
     </div>
