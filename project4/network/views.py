@@ -1,9 +1,11 @@
+import json
 from django.contrib.auth import authenticate, login, logout
 from django.core.paginator import Paginator
 from django.db import IntegrityError
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.shortcuts import render
 from django.urls import reverse
+from django.views.decorators.csrf import csrf_exempt
 
 from datetime import datetime
 
@@ -153,3 +155,17 @@ def following_view(request, page):
         "nextPage": page + 1,
         "prevPage": page - 1
     })
+
+@csrf_exempt
+def editPost(request, id):
+    try:
+        post = Post.objects.get(user=request.user, pk=id)
+    except Post.DoesNotExist:
+        return JsonResponse({"error": "Post not found.", "status": 404})
+    
+    if request.method == "PUT":
+        data = json.loads(request.body)
+        post.body = data["body"]
+        post.save()
+        print(post)
+        return HttpResponse(status=204)
