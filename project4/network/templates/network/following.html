@@ -9,11 +9,12 @@
     {% for post in followingPosts %}
     <div class="m-4 p-4 border">
         <h3 id="post_username" style="cursor:pointer;">
-            <a href="{% url 'user' post.user.username %}" style="text-decoration: none;">{{ post.user.username }}</a>
+            <a href="{% url 'user' post.user.username 1 %}" style="text-decoration: none;">{{ post.user.username }}</a>
         </h3>
         <p class="my-2">{{ post.body }}</p>
         <div>
-            <i class="fa-solid fa-heart" style="color: #ff708d; cursor: pointer;"></i> {{ post.likes.count }}
+            <i class="fa-solid fa-heart" style="color: #ff708d; cursor:pointer" onclick="toggleLike({{post.id}})"></i>
+            <p id="likes-count-{{post.id}}" style="display: inline;">{{ post.likes.count }}</p>
         </div>
         <small class="text-muted">{{ post.time }}</small>
     </div>
@@ -35,6 +36,19 @@
 
         function goToPreviousPage() {
             document.location.href = "{% url 'following' prevPage %}"
+        }
+
+        function toggleLike(postId) {
+            fetch(`/posts/${postId}`, {
+                method: 'PUT',
+                body: JSON.stringify({
+                    attribute: 'like'
+                })
+            })
+            .then(result => result.json())
+            .then(data => {
+                document.querySelector(`#likes-count-${postId}`).innerText = data.likes
+            })
         }
     </script>
 {% endblock %}

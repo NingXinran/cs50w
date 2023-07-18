@@ -92,12 +92,17 @@ def register(request):
     else:
         return render(request, "network/register.html")
     
-def user_view(request, username):
+def user_view(request, username, page):
     requestUser = request.user
     user = User.objects.get(username=username)
     followersCount = user.followers.all().count
     followingCount = user.following.all().count
-    posts = Post.objects.filter(user = user).order_by('-time')
+    allPosts = Post.objects.filter(user = user).order_by('-time')
+    paginator = Paginator(allPosts, 10)
+    numPages = paginator.num_pages
+    posts = paginator.page(page).object_list
+    hasNext = page < numPages
+    hasPrev = page != 1
     isFollowing = user in requestUser.following.all()
     return render(request, "network/user.html", {
         "requestUser": requestUser,
@@ -105,7 +110,11 @@ def user_view(request, username):
         "followersCount": followersCount,
         "followingCount": followingCount,
         "posts": posts,
-        "isFollowing": isFollowing
+        "isFollowing": isFollowing,
+        "hasNext": hasNext,
+        "hasPrev": hasPrev,
+        "nextPage": page + 1,
+        "prevPage": page - 1
     })
 
 def follow(request, username):
@@ -120,7 +129,7 @@ def follow(request, username):
         print(f"you have requested to unfollow {username}.")
         requestUser.following.remove(userObject)
         requestUser.save()
-    return HttpResponseRedirect(reverse("user", args=(username,)))
+    return HttpResponseRedirect(reverse("user", args=(username, 1)))
 
 def following_view(request, page):
     allFollowing = request.user.following.all()

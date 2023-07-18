@@ -29,17 +29,87 @@
     <div class="m-4 p-4 border">
         <h3 id="post_username">
             {{ post.user.username }}
+            {% if post.user == request.user %}
+                <button onclick="editPost({{post.id}})" id="edit-button-{{post.id}}" class="btn btn-outline-primary btn-sm" style="float:right">Edit</button>
+            {% endif %}
         </h3>
-        <p class="my-2">{{ post.body }}</p>
+        <p class="my-2" id="post-body-{{post.id}}">{{ post.body }}</p>
+        <form action="javascript:void(0);" class="my-4" id="edit-post-body-{{post.id}}" hidden="true">
+            <div class="form-group">
+                <textarea name="edit_body" 
+                class="form-control"
+                id="edit-body-{{post.id}}" 
+                cols="30" rows="5"
+                required>{{post.body}}</textarea>    
+            </div>
+            <button class="btn btn-outline-success btn-sm" onclick="submitEditPost({{post.id}})">Save</button>
+        </form>
         <div>
-            <i class="fa-solid fa-heart" style="color: #ff708d; cursor: pointer;"></i> {{ post.likes.count }}
+            <i class="fa-solid fa-heart" style="color: #ff708d; cursor:pointer" onclick="toggleLike({{post.id}})"></i>
+            <p id="likes-count-{{post.id}}" style="display: inline;">{{ post.likes.count }}</p>
         </div>
         <small class="text-muted">{{ post.time }}</small>
     </div>
     {% endfor %}
+
+    {% if hasNext %}
+    <button onclick="goToNextPage()" class="m-4 px-4 btn btn-primary" style="float:right;">Next</button>
+    {% endif %}
+
+    {% if hasPrev %}
+    <button onclick="goToPreviousPage()" class="m-4 px-4 btn btn-primary">Prev</button>
+    {% endif %}
+
 </div>
+{% endblock %}
 
 
+{% block script %}
+    <script type="text/javascript">
+        function editPost(postId) {
+            document.querySelector(`#edit-post-body-${postId}`).hidden = false
+            document.querySelector(`#post-body-${postId}`).hidden = true
+            document.querySelector(`#edit-button-${postId}`).hidden = true 
+        }
 
+        function submitEditPost(postId) {
+            newBody = document.querySelector(`#edit-body-${postId}`).value
+            fetch(`/posts/${postId}`, {
+                method: 'PUT',
+                body: JSON.stringify({
+                    attribute: "body",
+                    body: newBody
+                })
+            })
+            .then(hideFormAndShowBody(postId))
+            .then(document.querySelector(`#post-body-${postId}`).innerText=newBody)
+        }
 
+        function hideFormAndShowBody(postId) {
+            document.querySelector(`#edit-post-body-${postId}`).hidden = true
+            document.querySelector(`#post-body-${postId}`).hidden = false
+            document.querySelector(`#edit-button-${postId}`).hidden = false 
+        }
+
+        function toggleLike(postId) {
+            fetch(`/posts/${postId}`, {
+                method: 'PUT',
+                body: JSON.stringify({
+                    attribute: 'like'
+                })
+            })
+            .then(result => result.json())
+            .then(data => {
+                document.querySelector(`#likes-count-${postId}`).innerText = data.likes
+            })
+        }
+
+        function goToNextPage() {
+            document.location.href = "{% url 'user' user.username nextPage %}"
+        }
+
+        function goToPreviousPage() {
+            document.location.href = "{% url 'user' user.username prevPage %}"
+        }
+    </script>
 {% endblock %}
