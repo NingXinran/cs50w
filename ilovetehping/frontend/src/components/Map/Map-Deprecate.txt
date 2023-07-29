@@ -1,0 +1,60 @@
+import React, { Component } from "react";
+import { Map, GoogleApiWrapper, Marker } from 'google-maps-react'
+import { containerStyle, center, mapStyle } from './consts.js'
+import axios from "axios"
+
+export class MyMap extends Component {
+
+    fetchPins = () => {
+        axios
+            .get("/api/shops/")
+            .then(response => {
+                this.setPins(response.data)
+            })
+    }
+
+    setPins = (pins) => {
+        pins.map((pin, i) => {
+            console.log(`Creating marker with ${pin.name}`)
+            const position = {
+                lat: pin.latitude,
+                lng: pin.longitude
+            }
+            return <Marker
+                key = { i }
+                title = { pin.name }
+                position={ position }
+            />
+        })
+    }
+
+    _mapLoaded(mapProps, map) {
+        map.setOptions({
+           styles: mapStyle
+        })
+     }
+     
+    render() {
+        
+        return (
+            <Map
+                disableDefaultUI={true}
+                initialCenter={center}
+                google={this.props.google}
+                style={containerStyle}
+                zoom={15}
+                onReady={
+                    (mapProps, map) => this._mapLoaded(mapProps, map)}
+            >
+                {
+                    this.fetchPins()
+                }
+            </Map>
+        )
+    }
+
+}
+
+export default GoogleApiWrapper({
+    apiKey: process.env.REACT_APP_GOOGLE_MAPS_API_KEY
+})(MyMap);
