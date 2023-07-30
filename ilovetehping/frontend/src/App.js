@@ -11,7 +11,7 @@ const App = () => {
         <div>
             <h1>ilovetehping!</h1>
             {/* <Header /> */}
-            <Map />
+            <Map lat={1} lng={103}/>
             {/* <PinDetails /> */}
         </div>
     )
