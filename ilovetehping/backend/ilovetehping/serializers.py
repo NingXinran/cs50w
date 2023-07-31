@@ -4,14 +4,14 @@ from .models import User, Shop, Rating
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ('username', 'favourites')
+        fields = '__all__'
 
 class ShopSerializer(serializers.ModelSerializer):
     class Meta:
         model = Shop
-        fields = ('name', 'user', 'zipcode', 'address', 'latitude', 'longitude', 'image', 'description', 'price', 'timestamp')
+        fields = '__all__'
 
 class RatingSerializer(serializers.ModelSerializer):
     class Meta:
         model = Rating
-        fields = ('user', 'shop', 'timestamp', 'rating', 'body')
+        fields = '__all__'

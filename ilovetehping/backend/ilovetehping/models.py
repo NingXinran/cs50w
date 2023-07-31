@@ -8,15 +8,13 @@ class User(AbstractUser):
                                         blank=True)
 
 class Shop(models.Model):
-    name = models.CharField(max_length=255)
-    user = models.ForeignKey("User", on_delete=models.CASCADE, null=True)
-    zipcode = models.IntegerField(validators=[MinValueValidator(100000), MaxValueValidator(999999)])
-    address = models.TextField(blank=True)  # for user
-    latitude = models.FloatField(validators=[MinValueValidator(-90), MaxValueValidator(90)], null=True)
-    longitude = models.FloatField(validators=[MinValueValidator(-180), MaxValueValidator(180)], null=True)
-    image = models.URLField(null=True, blank=True)
-    description = models.TextField(blank=True)
-    price = models.IntegerField(validators=[MinValueValidator(1), MaxValueValidator(5)])
+    name = models.CharField(max_length=255, null=True, blank=True)
+    zipcode = models.IntegerField(validators=[MinValueValidator(100000), MaxValueValidator(999999)], null=True, blank=True)
+    address = models.TextField(null=True, blank=True)  # for user
+    latitude = models.FloatField(validators=[MinValueValidator(-90), MaxValueValidator(90)], null=True, blank=True)
+    longitude = models.FloatField(validators=[MinValueValidator(-180), MaxValueValidator(180)], null=True, blank=True)
+    description = models.TextField(null=True, blank=True)
+    price = models.IntegerField(validators=[MinValueValidator(1), MaxValueValidator(5)], null=True, blank=True)
     timestamp = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
