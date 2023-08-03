@@ -22,7 +22,6 @@ from ilovetehping import views
 router = routers.DefaultRouter()
 router.register(r'users', views.UserView, 'user')
 router.register(r'shops', views.ShopView, 'shop')
-router.register(r'ratings', views.RatingView, 'rating')
 
 urlpatterns = [
     path('admin/', admin.site.urls),

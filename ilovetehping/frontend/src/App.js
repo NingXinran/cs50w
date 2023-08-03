@@ -1,5 +1,5 @@
-import React from 'react';
-
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 
 import Header from './components/Header/Header';
 import Map from './components/Map/Map';
@@ -8,11 +8,23 @@ import PinDetails from './components/PinDetails/PinDetails';
 
 const App = () => {
 
+    const [tehpins, setTehPins] = useState([]);
+
+    useEffect(() => {
+        axios
+            .get("/api/shops")
+            .then(res => {
+                console.log(res.data)
+                setTehPins(res.data)
+            })
+            .catch((err) => console.log(err))
+    }, [])
+
     return (
         <div>
             <Header />
-            <Map />
-            {/* <PinDetails /> */}
+            <Map tehpins={tehpins} setTehPins={setTehPins}/>
+            <PinDetails tehpins={tehpins} setTehPins={setTehPins}/>
         </div>
     )
 }

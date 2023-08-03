@@ -1,8 +1,13 @@
 import React from "react";
 
-const PinDetails = () => {
+const PinDetails = (props) => {
+    const tehpins = props.tehpins
     return (
-        <h1>PinDetails</h1>
+        <div>
+            {tehpins.map(pin => {
+                return <div>{pin.name}, {pin.rating}</div>
+            })}
+        </div>
     )
 }
 
