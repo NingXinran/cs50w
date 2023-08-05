@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import Button from 'react-bootstrap/Button'
 import Form from 'react-bootstrap/Form'
 import Modal from 'react-bootstrap/Modal'
@@ -12,46 +12,75 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faStar } from '@fortawesome/free-regular-svg-icons';
 import { faStar as fullFaStar } from '@fortawesome/free-solid-svg-icons'
 
+import PinDetails from './PinDetails';
+
 const Map = (props) => {
 
+    const [map, setMap] = useState()
+
+    const handleApiLoaded = (map, maps) => {
+        setMap(map)
+    }
+
+    const handleSeePin = (lat, lng, timeout) => {
+        const mapElement = document.getElementById('map');
+        if (mapElement) {
+            mapElement.scrollIntoView({ behaviour: 'smooth', 
+                                 callback: e => console.log('scroll event ended')})
+        }
+        const newCenter = { lat: lat, lng: lng }
+        setTimeout(() => map.panTo(newCenter), timeout)
+    }
+
+
+    const createTehPin = (e, tehpins, setTehPins) => {
+        handleSeePin(e.lat, e.lng, 0)
+        axios
+            .post(`/api/shops/`, {
+                "name": "New Teh Pin",
+                "latitude": e.lat,
+                "longitude": e.lng,
+                "zipcode": null,
+                "description": "",
+                "rating": 1
+            })
+            .then(res => res.data)
+            .then(newPin => setTehPins(tehpins => [...tehpins, newPin]))
+            .then(console.log(tehpins))
+            .catch(err => console.log(err))
+    }
+
     return (
-        <div style={{ height: '50vh', width: '80%' }} className='p-4 mx-auto'>
+        <div 
+            id='map' 
+            style={{ height: '80vh', width: '80%' }}
+            className='p-4 mx-auto'
+        >
             <GoogleMapReact
                 bootstrapURLKeys={{ key: process.env.REACT_APP_GOOGLE_MAPS_API_KEY }}
                 defaultCenter={center}
-                defaultZoom={13}
+                defaultZoom={14}
                 options={mapOptions}
                 onClick={e => createTehPin(e, props.tehpins, props.setTehPins)}
+                onGoogleApiLoaded={({ map, maps }) => handleApiLoaded(map, maps)}
+                yesIWantToUseGoogleMapApiInternals
             >
                 {
                     props.tehpins.map(pin => {
                         return (
-                            <Marker key={pin.id}
+                            <Marker key={`pin-${pin.id}`}
                                 lat={pin.latitude} lng={pin.longitude}
                                 pin={pin} tehpins={props.tehpins} setTehPins={props.setTehPins}
+                                handleSeePin={handleSeePin}
                             />
                         )
                     })
                 }
             </GoogleMapReact>
+
+            <PinDetails tehpins={props.tehpins} setTehPins={props.setTehPins} map={map} handleSeePin={handleSeePin}/>
         </div>
     )
-}
-
-const createTehPin = (e, tehpins, setTehPins) => {
-    axios
-        .post(`/api/shops/`, {
-            "name": "New Teh Pin",
-            "latitude": e.lat,
-            "longitude": e.lng,
-            "zipcode": null,
-            "description": "",
-            "rating": 1
-        })
-        .then(res => res.data)
-        .then(newPin => setTehPins(tehpins => [...tehpins, newPin]))
-        .then(console.log(tehpins))
-        .catch(err => console.log(err))
 }
 
 const Marker = props => {
@@ -64,6 +93,7 @@ const Marker = props => {
     const [show, setShow] = useState(false);
     const handleClose = () => setShow(false);
     const handleShow = (e) => {
+        props.handleSeePin(props.pin.latitude, props.pin.longitude, 0)
         setShow(true)
         e.stopPropagation()
     };

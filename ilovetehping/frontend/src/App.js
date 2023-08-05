@@ -3,7 +3,6 @@ import axios from 'axios';
 
 import Header from './components/Header/Header';
 import Map from './components/Map/Map';
-import PinDetails from './components/PinDetails/PinDetails';
 
 
 const App = () => {
@@ -24,7 +23,6 @@ const App = () => {
         <div>
             <Header />
             <Map tehpins={tehpins} setTehPins={setTehPins}/>
-            <PinDetails tehpins={tehpins} setTehPins={setTehPins}/>
         </div>
     )
 }
