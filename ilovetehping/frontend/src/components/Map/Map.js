@@ -25,8 +25,7 @@ const Map = (props) => {
     const handleSeePin = (lat, lng, timeout) => {
         const mapElement = document.getElementById('map');
         if (mapElement) {
-            mapElement.scrollIntoView({ behaviour: 'smooth', 
-                                 callback: e => console.log('scroll event ended')})
+            mapElement.scrollIntoView({ behaviour: 'smooth' })
         }
         const newCenter = { lat: lat, lng: lng }
         setTimeout(() => map.panTo(newCenter), timeout)
@@ -46,6 +45,7 @@ const Map = (props) => {
             })
             .then(res => res.data)
             .then(newPin => setTehPins(tehpins => [...tehpins, newPin]))
+            .then(props.setFilteredTP(tehpins))
             .then(console.log(tehpins))
             .catch(err => console.log(err))
     }
@@ -53,7 +53,7 @@ const Map = (props) => {
     return (
         <div 
             id='map' 
-            style={{ height: '80vh', width: '80%' }}
+            style={{ height: '60vh', width: '80%' }}
             className='p-4 mx-auto'
         >
             <GoogleMapReact
@@ -72,13 +72,15 @@ const Map = (props) => {
                                 lat={pin.latitude} lng={pin.longitude}
                                 pin={pin} tehpins={props.tehpins} setTehPins={props.setTehPins}
                                 handleSeePin={handleSeePin}
+                                setFilteredTP={props.setFilteredTP}
                             />
                         )
                     })
                 }
             </GoogleMapReact>
 
-            <PinDetails tehpins={props.tehpins} setTehPins={props.setTehPins} map={map} handleSeePin={handleSeePin}/>
+            <PinDetails tehpins={props.tehpins} map={map} handleSeePin={handleSeePin}
+                filteredTP={props.filteredTP} setFilteredTP={props.setFilteredTP}/>
         </div>
     )
 }
@@ -107,9 +109,16 @@ const Marker = props => {
                 description: description,
                 rating: rating
             })
-            .then(res => props.setTehPins(  // setTehPins so other components rerender after patch
-                props.tehpins.map(pin => pin.id === props.pin.id ? res.data : pin )
-            ))
+            .then(res => 
+                {
+                    props.setTehPins(  // setTehPins so other components rerender after patch
+                        props.tehpins.map(pin => pin.id === props.pin.id ? res.data : pin)
+                    )
+                    props.setFilteredTP(
+                        props.tehpins.map(pin => pin.id === props.pin.id ? res.data : pin)
+                    )
+                }
+            )
             .catch(err => console.log(err))
         handleClose()
     }
@@ -118,6 +127,7 @@ const Marker = props => {
         axios
             .delete(`/api/shops/${props.pin.id}/`)
             .then(setTehPins(tehpins.filter(pin => pin.id !== props.pin.id)))
+            .then(props.setFilteredTP(tehpins.filter(pin => pin.id !== props.pin.id)))
             .catch(err => console.log(err))
         handleClose()
     }

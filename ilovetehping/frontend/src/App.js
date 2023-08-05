@@ -1,30 +1,36 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import React from 'react';
+import {
+    createBrowserRouter,
+    createRoutesFromElements,
+    RouterProvider,
+    Route,
+    Outlet,
+    Link
+} from "react-router-dom"
 
 import Header from './components/Header/Header';
-import Map from './components/Map/Map';
-
+import Home from './components/Home/Home';
+import Translator from './components/Translator/Translator';
 
 const App = () => {
-
-    const [tehpins, setTehPins] = useState([]);
-
-    useEffect(() => {
-        axios
-            .get("/api/shops")
-            .then(res => {
-                console.log(res.data)
-                setTehPins(res.data)
-            })
-            .catch((err) => console.log(err))
-    }, [])
+    const router = createBrowserRouter([
+        {
+            path: "/",
+            element: <Home/>
+        },
+        {
+            path: "/translator",
+            element: <Translator />
+        }
+    ]
+    )
 
     return (
-        <div>
-            <Header />
-            <Map tehpins={tehpins} setTehPins={setTehPins}/>
+        <div className="App">
+            <RouterProvider router={router} />
         </div>
     )
+    
 }
 
 export default App;
