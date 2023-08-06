@@ -1,8 +1,8 @@
 import React, { useEffect, useState} from "react";
 import axios from "axios";
 
+import Callout from "./Callout";
 import Map from "../Map/Map";
-import Header from "../Header/Header"
 
 const Home = () => {
     const [tehpins, setTehPins] = useState([]);
@@ -21,7 +21,7 @@ const Home = () => {
 
     return (
         <div>
-            <Header />
+            <Callout/>
             <Map 
                 tehpins={tehpins} setTehPins={setTehPins}
                 filteredTP={filteredTP} setFilteredTP={setFilteredTP}

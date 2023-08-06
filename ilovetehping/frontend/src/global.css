@@ -1,0 +1,9 @@
+
+@media (max-width: 800px) {
+    .translator-column {
+        flex-direction: column
+    }
+    .translator-alert {
+        max-width: 20em
+    }
+}
